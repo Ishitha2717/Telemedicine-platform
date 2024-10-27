@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourHealth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        input[type="text"], select, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button.remove {
+            background-color: #dc3545;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to YourHealth</h1>
+
+    <!-- Doctor Section -->
+    <div class="container">
+        <h2>Add a Doctor</h2>
+        <form id="doctorForm">
+            <input type="text" id="doctorName" placeholder="Doctor's Name" required>
+            <input type="text" id="specialization" placeholder="Specialization" required>
+            <input type="text" id="languagesKnown" placeholder="Languages Known (comma-separated)" required>
+            <button type="submit">Add Doctor</button>
+        </form>
+
+        <h3>Doctor List</h3>
+        <ul id="doctorList"></ul>
+    </div>
+
+    <!-- Patient Section -->
+    <div class="container">
+        <h2>Add a Patient</h2>
+        <form id="patientForm">
+            <input type="text" id="patientName" placeholder="Patient's Name" required>
+            <input type="text" id="languagePreferred" placeholder="Language Preferred" required>
+            <button type="submit">Add Patient</button>
+        </form>
+
+        <h3>Patient List</h3>
+        <ul id="patientList"></ul>
+    </div>
+
+    <script>
+        const doctors = [];
+
+        // Add Doctor
+        document.getElementById('doctorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('doctorName').value;
+            const specialization = document.getElementById('specialization').value;
+            const languages = document.getElementById('languagesKnown').value.split(',').map(lang => lang.trim());
+
+            const doctor = { name, specialization, languages };
+            doctors.push(doctor);
+
+            const doctorItem = document.createElement('li');
+            doctorItem.innerHTML = `
+                ${name} - ${specialization} (Languages: ${languages.join(', ')})
+                <button class="remove" onclick="removeDoctor(this, '${name}')">Remove</button>
+            `;
+            document.getElementById('doctorList').appendChild(doctorItem);
+
+            // Clear form fields
+            document.getElementById('doctorForm').reset();
+        });
+
+        // Remove Doctor
+        function removeDoctor(button, doctorName) {
+            const index = doctors.findIndex(doc => doc.name === doctorName);
+            if (index !== -1) {
+                doctors.splice(index, 1);
+            }
+            button.parentElement.remove();
+        }
+
+        // Add Patient
+        document.getElementById('patientForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const patientName = document.getElementById('patientName').value;
+            const languagePreferred = document.getElementById('languagePreferred').value.trim();
+
+            // Check for a matching doctor
+            const matchingDoctor = doctors.find(doctor => doctor.languages.includes(languagePreferred));
+
+            const patientItem = document.createElement('li');
+            patientItem.innerHTML = `
+                ${patientName} - Language Preferred: ${languagePreferred}
+                ${matchingDoctor ? ⁠ <span style="color: green;">Suggested Doctor: ${matchingDoctor.name} (${matchingDoctor.specialization})</span> ⁠ : '<span style="color: red;">No matching doctor found</span>'}
+                <button class="remove" onclick="removeItem(this)">Remove</button>
+            `;
+            document.getElementById('patientList').appendChild(patientItem);
+
+            // Clear form fields
+            document.getElementById('patientForm').reset();
+        });
+
+        // Remove patient or doctor item
+        function removeItem(button) {
+            button.parentElement.remove();
+        }
+    </script>
+
+</body>
+</html>
